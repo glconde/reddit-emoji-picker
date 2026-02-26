@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Reddit Emoji Picker",
+  "version": "0.1.0",
+  "description": "Adds a context-aware emoji picker button to Reddit's comment editor.",
+  "permissions": [],
+  "host_permissions": [
+    "https://www.reddit.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.reddit.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["picker.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
