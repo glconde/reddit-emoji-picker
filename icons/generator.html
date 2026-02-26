@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Icon Generator</title>
+</head>
+<body style="margin:0; display:flex; flex-direction:column; gap:20px; align-items:center; padding:20px; background:#f2f2f2;">
+<!-- icon generator hack, because canva resizing needs premium -->
+<script>
+function createIcon(size) {
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+
+  const ctx = canvas.getContext("2d");
+
+  // Background
+  ctx.fillStyle = "#FF4500"; // orange (reddit)
+  ctx.fillRect(0, 0, size, size);
+
+  // Emoji
+  ctx.font = `${size * 0.6}px serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("🙂", size / 2, size / 2);
+
+  document.body.appendChild(canvas);
+
+  const link = document.createElement("a");
+  link.download = `icon${size}.png`;
+  link.href = canvas.toDataURL("image/png");
+  link.textContent = `Download ${size}x${size}`;
+  link.style.display = "block";
+  link.style.marginBottom = "10px";
+  document.body.appendChild(link);
+}
+
+[16, 48, 128].forEach(createIcon);
+</script>
+
+</body>
+</html>
