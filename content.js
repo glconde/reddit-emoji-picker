@@ -26,16 +26,18 @@
   }
 
   function saveSelectionIfInEditor() {
-    if (!activeEditor) return;
+    const editor = getLiveEditor();
+    if (!editor) return;
+
+    // keep activeEditor synced
+    activeEditor = editor;
+
     const sel = window.getSelection();
     if (!sel || sel.rangeCount === 0) return;
 
-    const range = sel.getRangeAt(0);
     const anchor = sel.anchorNode;
-
-    // only save if selection is inside the active editor
-    if (anchor && activeEditor.contains(anchor)) {
-      savedRange = range.cloneRange();
+    if (anchor && editor.contains(anchor)) {
+      savedRange = sel.getRangeAt(0).cloneRange();
     }
   }
 
@@ -49,6 +51,31 @@
 
     sel.removeAllRanges();
     sel.addRange(savedRange);
+  }
+
+  function getLiveEditor() {
+    // If we have one and it’s still in DOM, use it
+    if (activeEditor instanceof HTMLElement && activeEditor.isConnected)
+      return activeEditor;
+
+    // Try from current active element
+    const ae = document.activeElement;
+    if (ae instanceof HTMLElement) {
+      const ce = ae.closest?.('[contenteditable="true"]');
+      if (ce instanceof HTMLElement) return ce;
+    }
+
+    // Try from current selection
+    const sel = window.getSelection();
+    const anchor = sel?.anchorNode;
+    if (anchor) {
+      const el =
+        anchor.nodeType === Node.ELEMENT_NODE ? anchor : anchor.parentElement;
+      const ce = el?.closest?.('[contenteditable="true"]');
+      if (ce instanceof HTMLElement) return ce;
+    }
+
+    return null;
   }
 
   /**
@@ -82,11 +109,15 @@
     if (emojiBtn) return emojiBtn;
 
     const btn = document.createElement("button");
+
     btn.type = "button";
     btn.className = "rep-emoji-btn";
     btn.setAttribute("aria-label", "Open emoji picker");
     btn.title = "Emoji";
     btn.textContent = "🙂";
+
+    btn.addEventListener("mousedown", (e) => e.preventDefault());
+    btn.addEventListener("pointerdown", (e) => e.preventDefault());
 
     btn.addEventListener("click", async (e) => {
       e.preventDefault();
@@ -109,9 +140,6 @@
       } else {
         closePicker();
       }
-
-      // keep editor focus for typing continuity
-      activeEditor?.focus?.();
     });
 
     document.documentElement.appendChild(btn);
@@ -201,7 +229,6 @@
     window.__REP_PICKER__.render(pickerPanel, (emoji) => {
       insertEmoji(emoji);
       closePicker();
-      activeEditor?.focus?.();
     });
 
     pickerOpen = true;
@@ -231,58 +258,80 @@
   }
 
   /**
-   * Insert emoji into either textarea or contenteditable.
+   * insert emoji into either textarea or contenteditable.
    * @param {string} emoji
    */
   function insertEmoji(emoji) {
     if (!activeEditor) return;
+    console.log("[REP] insertEmoji()", { emoji, hasEditor: !!activeEditor });
+    console.log(
+      "[REP] editor connected?",
+      activeEditor?.isConnected,
+      activeEditor,
+    );
 
-    const type = getEditorType(activeEditor);
+    // contenteditable insertion (new Reddit)
+    const editor = getLiveEditor ? getLiveEditor() : activeEditor;
+    if (!editor) return;
+    activeEditor = editor;
 
-    if (type === "textarea") {
-      const ta = /** @type {HTMLTextAreaElement} */ (activeEditor);
-      const start = ta.selectionStart ?? ta.value.length;
-      const end = ta.selectionEnd ?? ta.value.length;
-      ta.value = ta.value.slice(0, start) + emoji + ta.value.slice(end);
-      const next = start + emoji.length;
-      ta.setSelectionRange(next, next);
-      ta.dispatchEvent(new Event("input", { bubbles: true }));
-      return;
+    editor.focus?.();
+
+    const ok = document.execCommand("insertText", false, emoji);
+
+    if (ok) {
+      try {
+        const sel2 = window.getSelection();
+        if (sel2 && sel2.rangeCount) {
+          savedRange = sel2.getRangeAt(0).cloneRange();
+        }
+      } catch {}
+      return; // 🔥 IMPORTANT: stop here if it worked
     }
-
-    // contenteditable insertion
-    restoreSelectionIntoEditor();
 
     const sel = window.getSelection();
     if (!sel) return;
 
-    if (!sel.rangeCount) {
-      // fallback: append at end
-      activeEditor.appendChild(document.createTextNode(emoji));
-    } else {
-      const range = sel.getRangeAt(0);
-
-      // if range drifted outside editor, fallback to end
-      if (sel.anchorNode && !activeEditor.contains(sel.anchorNode)) {
-        activeEditor.appendChild(document.createTextNode(emoji));
-      } else {
-        range.deleteContents();
-        const node = document.createTextNode(emoji);
-        range.insertNode(node);
-
-        // move caret after inserted emoji
-        range.setStartAfter(node);
-        range.collapse(true);
-        sel.removeAllRanges();
-        sel.addRange(range);
-
-        // update savedRange so repeated inserts work
-        savedRange = range.cloneRange();
+    // Restore saved caret if it’s still valid
+    if (savedRange) {
+      try {
+        if (editor.contains(savedRange.startContainer)) {
+          sel.removeAllRanges();
+          sel.addRange(savedRange);
+        }
+      } catch {
+        // ignore
       }
     }
 
-    // something changed
-    activeEditor.dispatchEvent(
+    // Ensure we have a range inside editor (fallback = END, not start)
+    let range;
+    if (sel.rangeCount && sel.anchorNode && editor.contains(sel.anchorNode)) {
+      range = sel.getRangeAt(0);
+    } else {
+      range = document.createRange();
+      range.selectNodeContents(editor);
+      range.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+
+    // Insert
+    range.deleteContents();
+    const node = document.createTextNode(emoji);
+    range.insertNode(node);
+
+    // Move caret after
+    range.setStartAfter(node);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
+
+    // Save for next time
+    savedRange = range.cloneRange();
+
+    // Notify React/editor once
+    editor.dispatchEvent(
       new InputEvent("input", {
         bubbles: true,
         inputType: "insertText",
@@ -358,6 +407,18 @@
     },
     true,
   );
+
+  document.addEventListener("selectionchange", () => {
+    if (!activeEditor) return;
+
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+
+    const anchor = sel.anchorNode;
+    if (anchor && activeEditor.contains(anchor)) {
+      savedRange = sel.getRangeAt(0).cloneRange();
+    }
+  });
 
   log("content script loaded");
 })();

@@ -42,9 +42,38 @@
 
 .rep-picker-header {
   padding: 10px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rep-picker-title {
   font-size: 13px;
   font-weight: 600;
-  border-bottom: 1px solid rgba(0,0,0,0.08);
+  flex: 0 0 auto;
+}
+
+.rep-picker-search {
+  flex: 1 1 auto;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: rgba(255,255,255,0.9);
+  font-size: 13px;
+  outline: none;
+}
+
+.rep-picker-search:focus {
+  border-color: rgba(0,0,0,0.25);
+}
+
+.rep-picker-empty {
+  grid-column: 1 / -1;
+  padding: 14px 6px;
+  font-size: 13px;
+  opacity: 0.7;
 }
 
 .rep-picker-grid {
@@ -70,3 +99,4 @@
 .rep-emoji-item:hover {
   background: rgba(0,0,0,0.06);
 }
+
