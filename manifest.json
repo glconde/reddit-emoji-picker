@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Reddit Emoji Picker",
   "version": "0.1.0",
-  "description": "Adds a context-aware emoji picker button to Reddit's comment editor.",
+  "description": "Adds a searchable emoji picker with recents to Reddit’s comment editor when the built-in picker isn’t available.",
   "permissions": ["storage"],
   "host_permissions": ["https://www.reddit.com/*"],
   "content_scripts": [

@@ -1,0 +1,40 @@
+{
+  "tokens": {
+    "joy": ["lol", "laugh", "lmao", "funny"],
+    "laughing": ["lol", "lmao", "rofl"],
+    "crying": ["sad", "cry"],
+    "angry": ["mad", "rage"],
+    "heart": ["love", "like", "favorite"],
+    "fire": ["lit", "hot"],
+    "thumbs": ["like", "approve"],
+    "clapping": ["applause", "congrats"],
+    "skull": ["dead", "ded"],
+    "sparkles": ["shine", "glitter"],
+    "smiling": ["smile", "happy"],
+    "grinning": ["smile", "happy"],
+    "thinking": ["hmm"],
+    "sleeping": ["tired"],
+    "party": ["celebrate"],
+    "warning": ["alert"],
+    "check": ["done", "yes"],
+    "cross": ["no", "wrong"]
+  },
+
+  "phrases": {
+    "face with tears of joy": ["lol", "lmao", "rofl"],
+    "rolling on the floor laughing": ["rofl", "lol", "lmao"],
+    "loudly crying face": ["cry", "sob", "sad"],
+    "skull": ["im dead", "dead laughing"],
+    "red heart": ["love"],
+    "blue heart": ["love"],
+    "green heart": ["love"],
+    "thumbs up": ["like", "approve", "ok"],
+    "thumbs down": ["dislike", "no"],
+    "clapping hands": ["applause", "congrats"],
+    "folded hands": ["pray", "please"],
+    "fire": ["lit", "hype"],
+    "face screaming in fear": ["scared", "shock"],
+    "smiling face with sunglasses": ["cool"],
+    "smiling face with heart-eyes": ["love", "crush"]
+  }
+}

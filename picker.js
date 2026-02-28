@@ -67,20 +67,21 @@
     STATE.query = q.trim().toLowerCase();
   }
 
-  /** @param {{emoji:string,name:string,keywords?:string[]}} item */
+  /** @param {{emoji:string,name:string,keywords?:string[],shortcodes?:string[]}} item */
   function matchesQuery(item) {
     if (!STATE.query) return true;
-    const q = STATE.query;
 
-    if (item.emoji && item.emoji.includes(q)) return true;
-    if (item.name && item.name.toLowerCase().includes(q)) return true;
+    const terms = STATE.query.split(/\s+/).filter(Boolean);
 
-    if (Array.isArray(item.keywords)) {
-      for (const kw of item.keywords) {
-        if (typeof kw === "string" && kw.toLowerCase().includes(q)) return true;
-      }
-    }
-    return false;
+    const haystack = [
+      item.name || "",
+      ...(item.keywords || []),
+      ...(item.shortcodes || []),
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    return terms.every((term) => haystack.includes(term));
   }
 
   /**
