@@ -1,0 +1,11 @@
+[
+  { "emoji": "😀", "name": "grinning face", "category": "smileys" },
+  { "emoji": "😂", "name": "face with tears of joy", "category": "smileys" },
+  { "emoji": "😍", "name": "smiling face with heart-eyes", "category": "smileys" },
+  { "emoji": "🔥", "name": "fire", "category": "objects" },
+  { "emoji": "👍", "name": "thumbs up", "category": "people" },
+  { "emoji": "👀", "name": "eyes", "category": "people" },
+  { "emoji": "💀", "name": "skull", "category": "objects" },
+  { "emoji": "🎉", "name": "party popper", "category": "activities" },
+  { "emoji": "❤️", "name": "red heart", "category": "symbols" }
+]
