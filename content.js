@@ -7,7 +7,7 @@
   // to spot on console.log
   const LOG_PREFIX = "[REP]";
   // turn DEBUG mode on/off
-  const DEBUG = true;
+  const DEBUG = false;
 
   /** @type {HTMLElement|null} */
   let activeEditor = null;
