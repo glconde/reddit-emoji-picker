@@ -109,11 +109,6 @@
     search.placeholder = "Search…";
     search.autocomplete = "off";
 
-    // const loadingElem = document.createElement("div");
-    // loadingElem.className = "rep-loading";
-    // loadingElem.textContent = "Loading emojis…";
-    // panel.appendChild(loadingElem);
-
     // input handler
     search.addEventListener("input", () => {
       setQuery(search.value);
