@@ -7,7 +7,7 @@
   // to spot on console.log
   const LOG_PREFIX = "[REP]";
   // turn DEBUG mode on/off
-  const DEBUG = false;
+  const DEBUG = true;
 
   /** @type {HTMLElement|null} */
   let activeEditor = null;
@@ -97,6 +97,11 @@
   /** create the floating button once or summons the already created one */
   function ensureEmojiButton() {
     if (emojiBtn) return emojiBtn;
+
+    if (!window.__REP_PICKER__) {
+      if (DEBUG) log("picker module missing");
+      return;
+    }
 
     const btn = document.createElement("button");
 
@@ -462,5 +467,10 @@
     }
   });
 
-  log("content script loaded");
+  // preload emoji dataset once per page load
+  if (window.__REP_PICKER__?.preload) {
+    window.__REP_PICKER__.preload();
+  }
+
+  if (DEBUG) log("content script loaded");
 })();

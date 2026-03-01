@@ -26,7 +26,6 @@
   transform: scale(0.98);
 }
 
-/* George Conde 2026-02-26 added for emoji picker */
 .rep-picker-panel {
   position: fixed;
   z-index: 999999;
@@ -41,28 +40,27 @@
 }
 
 .rep-picker-header {
-  padding: 10px 12px;
   border-bottom: 1px solid rgba(0,0,0,0.08);
   display: flex;
   align-items: center;
-  gap: 10px;
+  padding: 8px 10px;
+  gap: 8px;
 }
 
 .rep-picker-title {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  flex: 0 0 auto;
+  /* flex: 0 0 auto; */
+  line-height: 1;
+  margin: 0;
 }
 
 .rep-picker-search {
-  flex: 1 1 auto;
   height: 28px;
-  padding: 0 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(0,0,0,0.12);
-  background: rgba(255,255,255,0.9);
+  padding: 4px 8px;
   font-size: 13px;
-  outline: none;
+  /* line-height: 1.2; */
+  margin-left: auto;
 }
 
 .rep-picker-search:focus {
@@ -100,3 +98,14 @@
   background: rgba(0,0,0,0.06);
 }
 
+.rep-loading::after {
+  content: "...";
+  animation: dots 1.2s steps(3, end) infinite;
+}
+
+@keyframes dots {
+  0% { content: ""; }
+  33% { content: "."; }
+  66% { content: ".."; }
+  100% { content: "..."; }
+}
