@@ -20,19 +20,21 @@
     onPick: /** @type {(emoji: string) => void} */ (() => {}),
   };
 
+  let EMOJI_CACHE = null;
+
   /**
    * @returns {Promise<void>}
    */
   async function loadEmojis() {
-    if (STATE.loaded) return;
+    if (EMOJI_CACHE) return EMOJI_CACHE;
 
-    const url = chrome.runtime.getURL("emoji-data.json");
-    //console.log("[REP] emoji json url:", url);
-    const res = await fetch(url);
-    if (!res.ok)
-      throw new Error(`Failed to load emoji-data.json: ${res.status}`);
-    STATE.emojis = await res.json();
-    STATE.loaded = true;
+    const res = await fetch(chrome.runtime.getURL("emoji-data.json"));
+    EMOJI_CACHE = await res.json();
+    return EMOJI_CACHE;
+  }
+
+  async function preload() {
+    await loadEmojis();
   }
 
   /** @returns {Promise<string[]>} */
@@ -107,6 +109,11 @@
     search.placeholder = "Search…";
     search.autocomplete = "off";
 
+    // const loadingElem = document.createElement("div");
+    // loadingElem.className = "rep-loading";
+    // loadingElem.textContent = "Loading emojis…";
+    // panel.appendChild(loadingElem);
+
     // input handler
     search.addEventListener("input", () => {
       setQuery(search.value);
@@ -137,6 +144,13 @@
     const grid = panel.querySelector(".rep-picker-grid");
     if (!(grid instanceof HTMLElement)) return;
 
+    // load once
+    if (!STATE.loaded) {
+      grid.innerHTML = '<div class="rep-loading">Loading emojis…</div>';
+      STATE.emojis = await loadEmojis();
+      STATE.loaded = true;
+    }
+
     grid.innerHTML = "";
 
     const q = STATE.query;
@@ -153,7 +167,8 @@
         .filter(Boolean);
 
       const rest = filtered.filter((x) => !recentSet.has(x.emoji));
-      items = /** @type {any} */ (recentItems).concat(rest);
+      //items = /** @type {any} */ (recentItems).concat(rest);
+      items = recentItems.concat(rest);
     }
 
     for (const item of items) {
@@ -164,7 +179,6 @@
       btn.title = item.name || item.emoji;
       // helps keep selection stable in contenteditable
       btn.addEventListener("mousedown", (e) => e.preventDefault());
-
       btn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -189,5 +203,6 @@
     loadEmojis,
     createPanel,
     render,
+    preload,
   };
 })();
