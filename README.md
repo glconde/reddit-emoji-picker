@@ -23,7 +23,7 @@ Built as a Manifest V3 Chrome extension using vanilla JavaScript.
 1.  Clone the repository:
 
 ``` bash
-git clone https://github.com/yourusername/reddit-emoji-picker.git
+git clone https://github.com/glconde/reddit-emoji-picker.git
 ```
 
 2.  Open Chrome → `chrome://extensions`
