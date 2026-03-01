@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Reddit Emoji Picker",
-  "version": "0.1.0",
-  "description": "Adds a searchable emoji picker with recents to Reddit’s comment editor when the built-in picker isn’t available.",
+  "version": "0.3.0",
+  "description": "Enhances Reddit’s desktop rich-text comment editor with a searchable emoji picker and recents for fast, reliable insertion.",
   "permissions": ["storage"],
   "host_permissions": ["https://www.reddit.com/*"],
   "content_scripts": [
