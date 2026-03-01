@@ -6,6 +6,8 @@
 
   // to spot on console.log
   const LOG_PREFIX = "[REP]";
+  // turn DEBUG mode on/off
+  const DEBUG = false;
 
   /** @type {HTMLElement|null} */
   let activeEditor = null;
@@ -22,7 +24,7 @@
   let savedRange = null;
 
   function log(...args) {
-    console.log(LOG_PREFIX, ...args);
+    if (DEBUG) console.log(LOG_PREFIX, ...args);
   }
 
   function saveSelectionIfInEditor() {
@@ -67,7 +69,7 @@
   }
 
   /**
-   * Support both textarea and contenteditable (rich editor).
+   * support both textarea and contenteditable (rich editor).
    * @param {EventTarget|null} target
    * @returns {HTMLElement|null}
    */
@@ -252,7 +254,8 @@
   function insertEmoji(emoji) {
     if (!activeEditor) return;
 
-    console.log("[REP] insertEmoji()", { emoji, hasEditor: !!activeEditor });
+    if (DEBUG)
+      console.log("[REP] insertEmoji()", { emoji, hasEditor: !!activeEditor });
 
     // get editor
     const editor = getLiveEditor() || activeEditor;
@@ -260,6 +263,32 @@
     activeEditor = editor;
 
     editor.focus?.();
+
+    const sel = window.getSelection();
+    if (!sel) return;
+
+    if (savedRange) {
+      try {
+        // ok to fail if reddit rerenders child nodes
+        if (editor.contains(savedRange.startContainer)) {
+          sel.removeAllRanges();
+          sel.addRange(savedRange);
+        }
+      } catch {
+        // noop
+      }
+    }
+
+    // note: using deprecated execCommand for reliability
+    const ok = document.execCommand("insertText", false, emoji);
+
+    if (ok) {
+      // refresh savedRange to the new caret position
+      try {
+        if (sel.rangeCount) savedRange = sel.getRangeAt(0).cloneRange();
+      } catch {}
+      return; // early exit
+    }
 
     // handle textarea
     if (getEditorType(editor) === "textarea") {
@@ -272,7 +301,7 @@
       const newPos = start + emoji.length;
       editor.setSelectionRange(newPos, newPos);
 
-      // something has changed, let react/vue know.
+      // something has changed, let framework know.
       editor.dispatchEvent(
         new InputEvent("input", {
           bubbles: true,
@@ -288,19 +317,33 @@
     const selection = window.getSelection();
     if (!selection) return;
 
+    // if the picker search box is used
+    const focusInPicker =
+      pickerPanel &&
+      document.activeElement instanceof HTMLElement &&
+      pickerPanel.contains(document.activeElement);
+
     let range;
 
-    // try current selection first
-    if (selection.rangeCount > 0) {
+    // focus editor first, then restore saved caret if valid
+    editor.focus?.();
+
+    if (savedRange && editor.contains(savedRange.startContainer)) {
+      try {
+        selection.removeAllRanges();
+        selection.addRange(savedRange);
+        range = selection.getRangeAt(0);
+      } catch {
+        // noop
+      }
+    }
+
+    // fall back to current selection
+    if (!range && !focusInPicker && selection.rangeCount > 0) {
       const candidate = selection.getRangeAt(0);
       if (editor.contains(candidate.commonAncestorContainer)) {
         range = candidate;
       }
-    }
-
-    // fallback to previously saved range if valid
-    if (!range && savedRange && editor.contains(savedRange.startContainer)) {
-      range = savedRange;
     }
 
     // append at the end
@@ -324,7 +367,7 @@
     // save
     savedRange = range.cloneRange();
 
-    // let react/vue know
+    // let framework (react/vue) know
     editor.dispatchEvent(
       new InputEvent("input", {
         bubbles: true,
@@ -381,6 +424,9 @@
     "focusout",
     (e) => {
       setTimeout(() => {
+        // prevent clearing of editor if picker is open
+        if (pickerOpen) return;
+
         const now = document.activeElement;
 
         const editorStillFocused =
