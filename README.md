@@ -41,6 +41,9 @@ git clone https://github.com/glconde/reddit-emoji-picker.git
 4.  Search or select an emoji
 5.  Emoji is inserted at your caret position
 
+![Sample Usage](./images/screenshot1.png "Sample Usage")
+### **Fig. 1** Sample usage with panel open 
+
 **Note:**\
 Designed for desktop browsers. Mobile devices already provide native
 emoji keyboards.
@@ -48,8 +51,6 @@ emoji keyboards.
 ------------------------------------------------------------------------
 
 # 🛠 Developer Notes
-
-------------------------------------------------------------------------
 
 ## Architecture Overview
 
@@ -124,7 +125,6 @@ To use:
 -   Handles dynamic Reddit SPA navigation using MutationObserver.
 
 ------------------------------------------------------------------------
-
 ## 📦 Version
 
 Current version: **0.3.01**
