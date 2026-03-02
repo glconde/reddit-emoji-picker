@@ -42,6 +42,7 @@ git clone https://github.com/glconde/reddit-emoji-picker.git
 5.  Emoji is inserted at your caret position
 
 ![Sample Usage](./images/screenshot1.png "Sample Usage")
+
 **Fig. 1** Sample usage with panel open 
 
 **Note:**\
